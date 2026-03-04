@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Globe, ChevronRight, Search, ToggleLeft, ToggleRight } from "lucide-react";
+import { useUploadContext } from "@/context/UploadContext";
+import { generateFromMine } from "@/utils/conceptGenerator";
 
 const categories = [
   {
@@ -34,6 +36,13 @@ const sources = [
 
 const MinePage = () => {
   const navigate = useNavigate();
+  const {
+    setMineCategory,
+    setMineSources,
+    setMineKeywords,
+    setGeneratedResults
+  } = useUploadContext();
+
   const [selectedCategory, setSelectedCategory] = useState("skincare");
   const [enabledSources, setEnabledSources] = useState<string[]>(["amazon", "nykaa", "google"]);
   const [keywords, setKeywords] = useState("");
@@ -44,7 +53,18 @@ const MinePage = () => {
     );
   };
 
-  const handleMine = () => navigate(`/loading?source=mine&category=${selectedCategory}`);
+  const handleMine = () => {
+    // Save selections to context
+    setMineCategory(selectedCategory);
+    setMineSources(enabledSources);
+    setMineKeywords(keywords);
+
+    // Generate dynamic results based on selection
+    const results = generateFromMine(selectedCategory, keywords, enabledSources);
+    setGeneratedResults(results);
+
+    navigate(`/loading?source=mine&category=${selectedCategory}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,11 +92,10 @@ const MinePage = () => {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`p-6 rounded-2xl border-2 text-left transition-all hover:-translate-y-0.5 ${
-                    selectedCategory === cat.id
-                      ? "border-forest bg-forest text-primary-foreground shadow-forge"
-                      : "border-border bg-card hover:border-sage"
-                  }`}
+                  className={`p-6 rounded-2xl border-2 text-left transition-all hover:-translate-y-0.5 ${selectedCategory === cat.id
+                    ? "border-forest bg-forest text-primary-foreground shadow-forge"
+                    : "border-border bg-card hover:border-sage"
+                    }`}
                 >
                   <div className="text-3xl mb-3">{cat.emoji}</div>
                   <div className={`font-display font-bold text-xl mb-1 ${selectedCategory === cat.id ? "text-white" : "text-forest"}`}>
@@ -99,9 +118,8 @@ const MinePage = () => {
                 return (
                   <div
                     key={source.id}
-                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
-                      enabled ? "border-sage bg-sage-light/40" : "border-border bg-card hover:border-muted-foreground/20"
-                    }`}
+                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${enabled ? "border-sage bg-sage-light/40" : "border-border bg-card hover:border-muted-foreground/20"
+                      }`}
                     onClick={() => toggleSource(source.id)}
                   >
                     <span className="text-2xl">{source.icon}</span>

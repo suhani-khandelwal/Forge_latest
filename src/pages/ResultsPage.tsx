@@ -15,14 +15,14 @@ const ResultsPage = () => {
   const isUpload = source === "upload";
   const { parsedData, generatedResults } = useUploadContext();
 
-  // Use generated results from upload or fall back to hardcoded mock data
-  const allConcepts = isUpload
-    ? (generatedResults?.concepts && generatedResults.concepts.length > 0 ? generatedResults.concepts : uploadConcepts)
-    : mockConcepts;
+  // Use generated results from context if available, fallback to mock data
+  const allConcepts = generatedResults?.concepts && generatedResults.concepts.length > 0
+    ? generatedResults.concepts
+    : (isUpload ? uploadConcepts : mockConcepts);
 
-  const activeSentimentData = isUpload && generatedResults?.sentimentData ? generatedResults.sentimentData : mockSentimentData;
-  const activeTrendData = isUpload && generatedResults?.trendData ? generatedResults.trendData : mockTrendData;
-  const activeGapMatrixData = isUpload && generatedResults?.gapMatrixData ? generatedResults.gapMatrixData : mockGapMatrixData;
+  const activeSentimentData = generatedResults?.sentimentData ? generatedResults.sentimentData : mockSentimentData;
+  const activeTrendData = generatedResults?.trendData ? generatedResults.trendData : mockTrendData;
+  const activeGapMatrixData = generatedResults?.gapMatrixData ? generatedResults.gapMatrixData : mockGapMatrixData;
 
   const [activeFilter, setActiveFilter] = useState<"all" | "Skincare" | "Haircare" | "Supplements">("all");
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -47,10 +47,11 @@ const ResultsPage = () => {
     { label: "Files Analyzed", value: `${parsedData.length || 1}` },
   ];
 
+  const { mineSources } = useUploadContext();
   const mineStats = [
     { label: "Data Points Analyzed", value: `${(allConcepts.length * 2089).toLocaleString()}+` },
     {
-      label: "Consumer Sources", value: `${new Set(allConcepts.flatMap(c => c.citations.map(ci => {
+      label: "Consumer Sources", value: `${mineSources && mineSources.length > 0 ? mineSources.length : new Set(allConcepts.flatMap(c => c.citations.map(ci => {
         const match = ci.match(/^([\w\s]+?):/);
         return match ? match[1].trim() : "";
       }).filter(Boolean))).size} Platforms`

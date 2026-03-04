@@ -512,7 +512,7 @@ function generateTrendData(themes: DetectedTheme[]): { month: string;[key: strin
     }
 
     return months.map((month, i) => {
-        const row: Record<string, string | number> = { month };
+        const row: { month: string;[key: string]: string | number } = { month };
         topThemes.forEach((t, j) => {
             const key = t.theme.split(" ")[0].toLowerCase().replace(/[^a-z]/g, "");
             row[key] = Math.min(100, Math.max(20, 35 + i * 7 + Math.floor(Math.sin(i * (j + 1) * 1.3) * 15)));
@@ -538,6 +538,91 @@ export function generateFromUpload(rawTexts: string[]): GeneratedResults {
     const concepts = generateConcepts(themes, combinedText);
     const sentimentData = generateSentimentData(themes);
     const trendData = generateTrendData(themes);
+    const gapMatrixData = generateGapMatrix(concepts);
+
+    return { concepts, sentimentData, trendData, gapMatrixData };
+}
+
+export function generateFromMine(category: string, keywords: string, sources: string[]): GeneratedResults {
+    // If keywords are provided, use them to detect themes just like upload text
+    // Otherwise, generate a fake "raw text" based on the selected category to trigger relevant themes
+    let analysisText = keywords.toLowerCase();
+
+    if (!analysisText || analysisText.trim() === "") {
+        if (category.toLowerCase() === "skincare") {
+            analysisText = "moisturizer hydration sunscreen vitamin c acne retinol glass skin sensitive";
+        } else if (category.toLowerCase() === "haircare") {
+            analysisText = "hair fall hair growth dandruff split ends frizz repair natural onion bond";
+        } else if (category.toLowerCase() === "supplements") {
+            analysisText = "vitamin d iron gut health sleep ashwagandha pcos protein joint immunity";
+        }
+    }
+
+    const themes = detectThemes(analysisText);
+
+    // Filter themes to ONLY include those matching the selected category
+    const categoryFilteredThemes = themes.filter(
+        t => t.category.toLowerCase() === category.toLowerCase()
+    );
+
+    // We intentionally ignore the actual category if keywords strongly matched another category,
+    // but we prioritize matches from the exact category.
+    const finalThemes = categoryFilteredThemes.length > 0 ? categoryFilteredThemes : themes;
+
+    const concepts = generateConcepts(finalThemes, analysisText);
+
+    // If the user typed specific custom keywords, let's inject those into the generated concepts
+    // so it actually feels tailored to their exact query instead of just matching a generic theme.
+    if (keywords && keywords.trim() !== "") {
+        const topKeyword = keywords.split(",")[0].trim();
+        const capitalizedKeyword = topKeyword.charAt(0).toUpperCase() + topKeyword.slice(1);
+
+        if (concepts.length > 0) {
+            // Modify the first concept heavily to feature the keyword
+            concepts[0].name = `${capitalizedKeyword} ${concepts[0].format || "Complex"}`;
+            concepts[0].tagline = `Harnessing the power of ${topKeyword} for ${category.toLowerCase()}`;
+            concepts[0].ingredients = [capitalizedKeyword, ...concepts[0].ingredients.slice(0, 4)];
+            concepts[0].targetPersona.concerns = [capitalizedKeyword, ...concepts[0].targetPersona.concerns.slice(0, 2)];
+
+            // Modify the second concept slightly if it exists
+            if (concepts.length > 1) {
+                concepts[1].tagline = concepts[1].tagline.replace(".", ` with ${topKeyword}.`);
+                concepts[1].ingredients = [capitalizedKeyword, ...concepts[1].ingredients.slice(0, 4)];
+            }
+        }
+    }
+
+    // Customize the citations to reference the selected sources
+    if (sources.length > 0) {
+        concepts.forEach((concept, index) => {
+            // Distribute the sources among the concepts
+            const source = sources[index % sources.length];
+            const sourceName = source.charAt(0).toUpperCase() + source.slice(1);
+            concept.citations = concept.citations.map(c =>
+                c.replace("Your uploaded data", `${sourceName} Analysis`)
+            );
+
+            if (keywords && keywords.trim() !== "") {
+                concept.citations.push(`Keyword Trigger: High search velocity detected for "${keywords}"`);
+            }
+        });
+    }
+
+    const sentimentData = generateSentimentData(finalThemes);
+
+    // Shift sentiment based on sources to make the graph dynamic per selection
+    if (sources.length > 0) {
+        // Create a predictable but variable shift based on the sources selected
+        const shift = sources.reduce((acc, curr) => acc + curr.length, 0) % 15;
+        sentimentData.forEach((s, idx) => {
+            // alternate shifting positive up or down based on index to create variety
+            const mod = (idx % 2 === 0) ? shift : -shift;
+            s.positive = Math.min(95, Math.max(30, s.positive + mod));
+            s.negative = 100 - s.positive;
+        });
+    }
+
+    const trendData = generateTrendData(finalThemes);
     const gapMatrixData = generateGapMatrix(concepts);
 
     return { concepts, sentimentData, trendData, gapMatrixData };

@@ -26,6 +26,12 @@ interface UploadContextType {
     setContext: (ctx: string) => void;
     generatedResults: GeneratedResults | null;
     setGeneratedResults: (results: GeneratedResults | null) => void;
+    mineCategory: string;
+    setMineCategory: (cat: string) => void;
+    mineSources: string[];
+    setMineSources: (sources: string[]) => void;
+    mineKeywords: string;
+    setMineKeywords: (kw: string) => void;
 }
 
 const UploadContext = createContext<UploadContextType | null>(null);
@@ -35,6 +41,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
     const [parsedData, setParsedData] = useState<ParsedFileData[]>([]);
     const [context, setContext] = useState("");
     const [generatedResults, setGeneratedResults] = useState<GeneratedResults | null>(null);
+    const [mineCategory, setMineCategory] = useState("skincare");
+    const [mineSources, setMineSources] = useState<string[]>(["amazon", "nykaa", "google"]);
+    const [mineKeywords, setMineKeywords] = useState("");
 
     return (
         <UploadContext.Provider value={{
@@ -42,6 +51,9 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
             parsedData, setParsedData,
             context, setContext,
             generatedResults, setGeneratedResults,
+            mineCategory, setMineCategory,
+            mineSources, setMineSources,
+            mineKeywords, setMineKeywords,
         }}>
             {children}
         </UploadContext.Provider>

@@ -4,76 +4,7 @@ import Navbar from "@/components/Navbar";
 import { Link } from "react-router-dom";
 import { ArrowRight, Database, Globe, Sparkles, TrendingUp, Users, Zap, Star, MessageSquare } from "lucide-react";
 
-const liveReviews = [
-  { platform: "Amazon IN", user: "Priya_S", text: "Finally a ceramide mist that doesn't pill under makeup. Skin barrier is literally healing.", rating: 5, time: "2m ago", tag: "Skincare" },
-  { platform: "Reddit", user: "u/hairloss_survivor", text: "Bhringraj oil with biotin capsules changed my hair fall completely in 6 weeks. Need a serum version!", rating: 5, time: "5m ago", tag: "Haircare" },
-  { platform: "Nykaa", user: "sneha.k", text: "Sunscreen that doesn't leave white cast??? I've been searching for this forever. Finally found it.", rating: 5, time: "8m ago", tag: "Skincare" },
-  { platform: "Flipkart", user: "anon_buyer", text: "Ashwagandha gummies are out of stock everywhere. When is someone making a proper wellness stack for Indians?", rating: 4, time: "11m ago", tag: "Supplements" },
-  { platform: "Reddit", user: "u/desi_skincare", text: "Glutathione serum is the next big thing. Been using Korean brands but nothing for Indian skin tones.", rating: 5, time: "14m ago", tag: "Skincare" },
-  { platform: "Amazon IN", user: "meera.r", text: "My scalp is SO dry in winter. Needs something between a lightweight oil and a heavy mask.", rating: 3, time: "17m ago", tag: "Haircare" },
-  { platform: "Nykaa", user: "vikram.t", text: "Blue light is destroying my skin working from home. No Indian brand addresses this at all.", rating: 4, time: "20m ago", tag: "Skincare" },
-  { platform: "Reddit", user: "u/wellness_hunter", text: "Iron + Vitamin D combo supplement that actually absorbs well — why doesn't this exist in India?", rating: 4, time: "23m ago", tag: "Supplements" },
-];
 
-const tagColors: Record<string, string> = {
-  Skincare: "bg-sage-light text-forest",
-  Haircare: "bg-forest/10 text-forest",
-  Supplements: "bg-amber-50 text-amber-700",
-};
-
-const platformColors: Record<string, string> = {
-  "Amazon IN": "text-orange-500",
-  Reddit: "text-rose-500",
-  Nykaa: "text-pink-500",
-  Flipkart: "text-blue-500",
-};
-
-const LiveFeed = () => {
-  const [newIndex, setNewIndex] = useState<number | null>(null);
-  const [reviews, setReviews] = useState(liveReviews.slice(0, 4));
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setReviews(prev => {
-        const next = liveReviews[(prev.length) % liveReviews.length];
-        const updated = [next, ...prev.slice(0, 3)];
-        setNewIndex(0);
-        setTimeout(() => setNewIndex(null), 600);
-        return updated;
-      });
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="space-y-3">
-      {reviews.map((r, i) => (
-        <div
-          key={`${r.user}-${r.time}-${i}`}
-          className={`bg-card border border-border rounded-xl p-4 transition-all duration-500 ${i === newIndex ? "border-sage bg-sage-light/20 shadow-forge" : ""}`}
-        >
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-semibold font-body ${platformColors[r.platform] ?? "text-muted-foreground"}`}>{r.platform}</span>
-              <span className="text-muted-foreground/30 text-xs">·</span>
-              <span className="text-xs text-muted-foreground font-body">{r.user}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={`px-2 py-0.5 rounded-full text-xs font-body font-semibold ${tagColors[r.tag] ?? "bg-muted text-muted-foreground"}`}>{r.tag}</span>
-              <span className="text-xs text-muted-foreground font-body">{r.time}</span>
-            </div>
-          </div>
-          <p className="text-sm font-body text-foreground/80 leading-relaxed">{r.text}</p>
-          <div className="flex mt-2 gap-0.5">
-            {[...Array(r.rating)].map((_, j) => (
-              <Star key={j} className="w-3 h-3 fill-amber-400 text-amber-400" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 const Index = () => {
   return (
@@ -212,40 +143,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Live Feed Section */}
-      <section className="py-24 bg-surface">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            <div>
-              <p className="text-sage font-body font-semibold text-sm uppercase tracking-widest mb-3">Real-Time Signals</p>
-              <h2 className="font-display text-4xl font-bold text-forest mb-6">Live Consumer Reviews</h2>
-              <p className="text-muted-foreground font-body leading-relaxed mb-8">
-                Forge continuously monitors reviews, forums and trend data from across the Indian wellness market. Every signal feeds directly into product concept generation.
-              </p>
-              <div className="flex items-center gap-3 p-4 bg-sage-light border border-sage/30 rounded-xl mb-6">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-sm font-body text-forest font-semibold">Live feed active</span>
-                <span className="text-xs text-muted-foreground ml-auto">Amazon · Nykaa · Flipkart · Reddit</span>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  { label: "Reviews Processed", value: "2.4M+" },
-                  { label: "Signals Today", value: "18,400" },
-                  { label: "New Trends", value: "34" },
-                ].map(s => (
-                  <div key={s.label} className="bg-card border border-border rounded-xl p-4 text-center">
-                    <div className="font-display text-2xl font-bold text-forest">{s.value}</div>
-                    <div className="text-xs text-muted-foreground font-body mt-1">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <LiveFeed />
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Features grid */}
       <section className="py-24 bg-background">
