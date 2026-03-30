@@ -70,7 +70,7 @@ const MinePage = () => {
 
     try {
       console.log(`[Mining] Requesting 3-Stage AI insights for: ${selectedCategory} | ${keywords}`);
-      const response = await fetch("http://localhost:3001/api/generate-insights", {
+      const response = await fetch("/api/generate-insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

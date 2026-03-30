@@ -65,7 +65,7 @@ const UploadPage = () => {
       console.log(`[Upload Analysis] Processing ${rawTexts.length} files with Gemini Core...`);
 
       // Generate truly dynamic results based on selection from the backend
-      const response = await fetch("http://localhost:3001/api/generate-insights", {
+      const response = await fetch("/api/generate-insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

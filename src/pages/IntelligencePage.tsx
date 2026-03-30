@@ -103,7 +103,7 @@ export default function IntelligencePage() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3001/api/scrape", {
+      const response = await fetch("/api/scrape", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

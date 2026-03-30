@@ -486,13 +486,19 @@ Return ONLY valid JSON (no markdown):
   }
 });
 
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`\n╔═══════════════════════════════════════════╗
+const PORT = process.env.PORT || 3001;
+const isMain = import.meta.url === `file:///${process.argv[1].replace(/\\/g, "/")}`;
+
+if (isMain) {
+  app.listen(PORT, () => {
+    console.log(`\n╔═══════════════════════════════════════════╗
 ║   🔬 Innovist Intelligence Server         ║
-║   📡 Listening on port 3001              ║
+║   📡 Listening on port ${PORT}              ║
 ║   🤖 Gemini 3 Flash / 2.0 / 1.5           ║
 ║   🌐 Indian D2C Market Intelligence        ║
 ╚═══════════════════════════════════════════╝
 \n`);
-});
+  });
+}
+
+export default app;
