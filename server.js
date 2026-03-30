@@ -237,6 +237,9 @@ app.post("/api/generate-insights", async (req, res) => {
         stage: "Init"
       });
     }
+
+    const runTimestamp = new Date().toISOString();
+    const sourcesStr = sources?.join(", ") || "Amazon IN, Nykaa, Reddit, Google Trends";
     // ── STAGE 1: Signal Harvester ────────────────────────────────────────────
     console.log("  [Stage 1] 🔍 Harvesting live market signals...");
 
