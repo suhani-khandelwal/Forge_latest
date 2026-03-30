@@ -50,20 +50,53 @@ const UploadPage = () => {
     setPreviewData((prev) => prev.filter((_, idx) => idx !== i));
   };
 
-  const handleAnalyze = () => {
-    // Store data in context for the pipeline
-    setContextFiles(files);
-    setParsedData(previewData);
-    setContextValue(context);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-    // Generate concepts from uploaded data
-    const rawTexts = previewData.map((pd) => pd.rawText).filter(Boolean);
-    if (rawTexts.length > 0) {
-      const results = generateFromUpload(rawTexts);
+  const handleAnalyze = async () => {
+    setIsGenerating(true);
+    try {
+      // Store data in context for the pipeline
+      setContextFiles(files);
+      setParsedData(previewData);
+      setContextValue(context);
+
+      const rawTexts = previewData.map((pd) => pd.rawText).filter(Boolean);
+      
+      console.log(`[Upload Analysis] Processing ${rawTexts.length} files with Gemini Core...`);
+
+      // Generate truly dynamic results based on selection from the backend
+      const response = await fetch("http://localhost:3001/api/generate-insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: context || "General",
+          keywords: context,
+          rawTexts: rawTexts,
+          isUpload: true
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate insights from upload");
+      }
+
+      const results = await response.json();
       setGeneratedResults(results);
-    }
 
-    navigate("/loading?source=upload");
+      navigate("/loading?source=upload");
+    } catch (error) {
+      console.error("Upload analysis error:", error);
+      // Fallback for seamless experience
+      const rawTexts = previewData.map((pd) => pd.rawText).filter(Boolean);
+      if (rawTexts.length > 0) {
+        const { generateFromUpload } = await import("@/utils/conceptGenerator");
+        const results = generateFromUpload(rawTexts);
+        setGeneratedResults(results);
+      }
+      navigate("/loading?source=upload");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const getFileIcon = (name: string) => {
@@ -246,12 +279,21 @@ const UploadPage = () => {
           <div className="mt-10 flex justify-end">
             <button
               onClick={handleAnalyze}
-              disabled={isParsing}
+              disabled={isParsing || isGenerating}
               className="inline-flex items-center gap-2 px-8 py-4 bg-forest text-primary-foreground font-body font-semibold rounded-xl hover:bg-forest-light transition-all shadow-forge hover:shadow-forge-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed group"
             >
-              <FileText className="w-4 h-4" />
-              Analyze & Forge Concepts
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Forging Concepts...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-4 h-4" />
+                  Analyze & Forge Concepts
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </button>
           </div>
         </div>

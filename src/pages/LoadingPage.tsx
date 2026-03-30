@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useUploadContext } from "@/context/UploadContext";
 
 const steps = [
-  { label: "Extracting Consumer Signals", duration: 2000 },
-  { label: "Running Sentiment Analysis", duration: 2200 },
-  { label: "Mapping Competitive Gaps", duration: 2000 },
-  { label: "Designing Formulation Concepts", duration: 2500 },
-  { label: "Validating with Market Signals", duration: 1800 },
+  { label: "Harvesting live consumer signals from Amazon, Nykaa & Reddit", duration: 3500 },
+  { label: "Identifying complaint frequency & trending ingredients", duration: 3000 },
+  { label: "AI Architect designing novel concepts from real signals", duration: 4000 },
+  { label: "Grounding every score in harvested market data", duration: 3000 },
+  { label: "Synthesizing analytics: sentiment, trends & gap matrix", duration: 3000 },
 ];
 
 const MoleculeOrb = ({ size, x, y, delay, color }: { size: number; x: string; y: string; delay: number; color: string }) => (
@@ -77,7 +78,11 @@ const LoadingPage = () => {
   const source = searchParams.get("source") || "upload";
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [animationDone, setAnimationDone] = useState(false);
+  const { generatedResults } = useUploadContext();
+  const navigatedRef = useRef(false);
 
+  // Run the animation steps
   useEffect(() => {
     let stepIndex = 0;
     let totalElapsed = 0;
@@ -85,7 +90,7 @@ const LoadingPage = () => {
 
     const runStep = () => {
       if (stepIndex >= steps.length) {
-        setTimeout(() => navigate("/results?source=" + source), 800);
+        setAnimationDone(true);
         return;
       }
       setCurrentStep(stepIndex);
@@ -106,7 +111,16 @@ const LoadingPage = () => {
     };
 
     runStep();
-  }, [navigate, source]);
+  }, [source]);
+
+  // Navigate only when BOTH animation is done AND data is ready
+  useEffect(() => {
+    if (animationDone && generatedResults && !navigatedRef.current) {
+      navigatedRef.current = true;
+      setProgress(100);
+      setTimeout(() => navigate("/results?source=" + source), 500);
+    }
+  }, [animationDone, generatedResults, navigate, source]);
 
   return (
     <div className="min-h-screen bg-hero flex flex-col items-center justify-center relative overflow-hidden">

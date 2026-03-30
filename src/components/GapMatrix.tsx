@@ -57,11 +57,26 @@ const GapMatrix = ({ data }: { data: any[] }) => {
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const d = payload[0].payload;
+                const isBlue = d.x < 50 && d.y > 80;
+                const isRed = d.x >= 50;
+                let rationale = "Average Market";
+                if (isBlue) rationale = "Categorized as Blue Ocean due to High Demand (>80) and Low Competition (<50).";
+                if (isRed) rationale = "Categorized as Red Ocean due to High Competition (≥50).";
+                
                 return (
-                  <div className="bg-card border border-border rounded-xl p-3 shadow-forge text-sm font-body">
-                    <p className="font-semibold text-forest">{d.name}</p>
-                    <p className="text-muted-foreground text-xs">Competition: {d.x}/100</p>
-                    <p className="text-muted-foreground text-xs">Demand: {d.y}/100</p>
+                  <div className="bg-card border border-border rounded-xl p-4 shadow-forge text-sm font-body max-w-[200px]">
+                    <p className="font-semibold text-forest mb-1">{d.name}</p>
+                    <div className="flex justify-between mb-0.5">
+                      <span className="text-muted-foreground text-xs">Competition:</span>
+                      <span className="text-foreground text-xs font-semibold">{d.x}/100</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-muted-foreground text-xs">Unmet Demand:</span>
+                      <span className="text-foreground text-xs font-semibold">{d.y}/100</span>
+                    </div>
+                    <div className={`p-2 rounded mt-2 text-xs border ${isBlue ? 'bg-forest/5 border-forest/20 text-forest' : isRed ? 'bg-destructive/5 border-destructive/20 text-destructive' : 'bg-muted border-border text-muted-foreground'}`}>
+                      {rationale}
+                    </div>
                   </div>
                 );
               }

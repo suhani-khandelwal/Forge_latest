@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import { Globe, ChevronRight, Search, ToggleLeft, ToggleRight } from "lucide-react";
+import { Globe, ChevronRight, Search, ToggleLeft, ToggleRight, Loader2 } from "lucide-react";
 import { useUploadContext } from "@/context/UploadContext";
 import { generateFromMine } from "@/utils/conceptGenerator";
 
@@ -53,17 +53,46 @@ const MinePage = () => {
     );
   };
 
-  const handleMine = () => {
+  const [isMining, setIsMining] = useState(false);
+
+  const handleMine = async () => {
+    if (isMining) return;
+    setIsMining(true);
+
     // Save selections to context
     setMineCategory(selectedCategory);
     setMineSources(enabledSources);
     setMineKeywords(keywords);
 
-    // Generate dynamic results based on selection
-    const results = generateFromMine(selectedCategory, keywords, enabledSources);
-    setGeneratedResults(results);
-
+    // Navigate to loading page IMMEDIATELY — the user sees the animation
+    // while the 3-stage AI pipeline runs in the background
     navigate(`/loading?source=mine&category=${selectedCategory}`);
+
+    try {
+      console.log(`[Mining] Requesting 3-Stage AI insights for: ${selectedCategory} | ${keywords}`);
+      const response = await fetch("http://localhost:3001/api/generate-insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: selectedCategory,
+          keywords: keywords,
+          sources: enabledSources,
+          isUpload: false
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to generate dynamic insights");
+
+      const results = await response.json();
+      setGeneratedResults(results);
+    } catch (error) {
+      console.error("Mining error, using local fallback:", error);
+      const { generateFromMine } = await import("@/utils/conceptGenerator");
+      const results = generateFromMine(selectedCategory, keywords, enabledSources);
+      setGeneratedResults(results);
+    } finally {
+      setIsMining(false);
+    }
   };
 
   return (
@@ -173,12 +202,21 @@ const MinePage = () => {
           {/* CTA */}
           <button
             onClick={handleMine}
-            disabled={enabledSources.length === 0}
+            disabled={enabledSources.length === 0 || isMining}
             className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-forest text-primary-foreground font-body font-semibold rounded-xl hover:bg-forest-light transition-all shadow-forge hover:shadow-forge-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed group"
           >
-            <Globe className="w-4 h-4" />
-            Start Mining
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            {isMining ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Synthesizing Market Signals...
+              </>
+            ) : (
+              <>
+                <Globe className="w-4 h-4" />
+                Start Mining
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
           </button>
         </div>
       </div>

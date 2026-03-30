@@ -374,11 +374,22 @@ function detectThemes(rawText: string): DetectedTheme[] {
     return detected;
 }
 
-function generateScores(seed: number): ProductConcept["scores"] {
+function generateScores(seed: number, tags?: string[]): ProductConcept["scores"] {
     const rand = (base: number, variance: number) => Math.min(99, Math.max(30, base + Math.floor((Math.sin(seed * variance) * 0.5 + 0.5) * variance * 2 - variance)));
+    
+    let marketBase = 80;
+    let compBase = 45; 
+
+    if (tags) {
+        const tagStr = tags.join(" ").toLowerCase();
+        if (tagStr.includes("demand") || tagStr.includes("market") || tagStr.includes("need") || tagStr.includes("essential")) marketBase = 92;
+        if (tagStr.includes("low competition") || tagStr.includes("first mover") || tagStr.includes("white space") || tagStr.includes("novel") || tagStr.includes("emerging")) compBase = 25;
+        if (tagStr.includes("high competition") || tagStr.includes("crowded") || tagStr.includes("proven") || tagStr.includes("mass market")) compBase = 75;
+    }
+
     return {
-        marketSize: rand(82, 13),
-        competition: rand(35, 20),
+        marketSize: rand(marketBase, 6),
+        competition: rand(compBase, 12),
         novelty: rand(78, 15),
         brandFit: rand(85, 12),
         feasibility: rand(84, 10),
@@ -398,7 +409,7 @@ function generateConcepts(themes: DetectedTheme[], rawText: string): ProductConc
     for (const theme of topThemes) {
         const templates = CONCEPT_TEMPLATES[theme.theme] || [];
         for (const template of templates) {
-            const scores = generateScores(id);
+            const scores = generateScores(id, template.tags);
             const conceptScore = Math.round(
                 Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length
             );
@@ -451,7 +462,7 @@ function generateFallbackConcepts(rawText: string): ProductConcept[] {
     ].filter(Boolean) as Partial<ProductConcept>[];
 
     return defaults.map((template, i) => {
-        const scores = generateScores(2000 + i);
+        const scores = generateScores(2000 + i, template.tags);
         const conceptScore = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length);
         return {
             id: 2000 + i,

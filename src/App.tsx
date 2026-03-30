@@ -9,6 +9,7 @@ import UploadPage from "./pages/UploadPage";
 import MinePage from "./pages/MinePage";
 import LoadingPage from "./pages/LoadingPage";
 import ResultsPage from "./pages/ResultsPage";
+import IntelligencePage from "./pages/IntelligencePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/mine" element={<MinePage />} />
             <Route path="/loading" element={<LoadingPage />} />
             <Route path="/results" element={<ResultsPage />} />
+            <Route path="/intelligence/:id" element={<IntelligencePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

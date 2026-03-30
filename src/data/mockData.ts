@@ -13,6 +13,12 @@ export interface ProductConcept {
     name: string;
   };
   ingredients: string[];
+  formulation?: {
+    name: string;
+    concentration: string;
+    role: string;
+    rationale: string;
+  }[];
   positioning: string;
   citations: string[];
   scores: {
@@ -25,6 +31,13 @@ export interface ProductConcept {
     scalability: number;
     innovation: number;
   };
+  competitors?: {
+    brandName: string;
+    productName: string;
+    price: string;
+    formulation: string;
+    url: string;
+  }[];
   conceptScore: number;
   tags: string[];
 }

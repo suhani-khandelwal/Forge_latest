@@ -2,62 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 160 60% 8%;
+    --background: 216 100% 98%;   /* Crisp blue-tinted white */
+    --foreground: 222 47% 11%;    /* Deep Navy */
 
-    --card: 0 0% 100%;
-    --card-foreground: 160 60% 8%;
+    --card: 0 0% 100%;            /* Pure White card */
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 160 60% 8%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 158 72% 13%;
+    --primary: 215 100% 50%;      /* Strong Tech Cobalt */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 100 18% 61%;
-    --secondary-foreground: 158 72% 10%;
+    --secondary: 214 32% 91%;     /* Soft blue-gray */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 100 15% 94%;
-    --muted-foreground: 158 20% 40%;
+    --muted: 214 32% 95%;         /* Very light blue-gray */
+    --muted-foreground: 215 16% 47%; /* Subdued navy-gray */
 
-    --accent: 100 18% 88%;
-    --accent-foreground: 158 72% 13%;
+    --accent: 214 32% 91%;
+    --accent-foreground: 215 100% 50%; /* Cobalt accent text */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 100 15% 88%;
-    --input: 100 15% 88%;
-    --ring: 158 72% 13%;
-    --radius: 0.75rem;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 215 100% 50%;         /* Cobalt focus ring */
+    --radius: 0.6rem;
 
-    /* Custom Forge tokens */
-    --forest: 158 72% 13%;
-    --forest-light: 158 50% 22%;
-    --sage: 100 18% 61%;
-    --sage-light: 100 18% 88%;
-    --sage-muted: 100 15% 94%;
-    --gold: 43 74% 58%;
-    --surface: 100 15% 97%;
+    /* Custom Innovist tokens (Midnight Science) */
+    --forest: 222 47% 15%;        /* Renamed to keep class compatibility, now space navy */
+    --forest-light: 222 47% 25%;  /* Lighter navy */
+    --sage: 215 100% 50%;         /* Renamed to keep class compatibility, now cobalt blue */
+    --sage-light: 215 100% 92%;   /* Extremely light cobalt background */
+    --sage-muted: 214 32% 96%;    
+    --gold: 200 100% 40%;         /* Scientific cyan */
+    --surface: 0 0% 100%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(158, 72%, 8%) 0%, hsl(158, 60%, 16%) 60%, hsl(100, 30%, 22%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0,0%,100%) 0%, hsl(100, 15%, 97%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(222, 47%, 10%) 0%, hsl(222, 47%, 18%) 60%, hsl(215, 80%, 30%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0,0%,100%) 0%, hsl(216, 100%, 98%) 100%);
     --gradient-primary: linear-gradient(135deg, hsl(var(--forest)) 0%, hsl(var(--forest-light)) 100%);
-    --gradient-sage: linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(var(--sage-light)) 100%);
+    --gradient-sage: linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(215, 80%, 60%) 100%);
 
     /* Shadows */
-    --shadow-sm: 0 1px 3px 0 hsl(158 72% 13% / 0.08), 0 1px 2px -1px hsl(158 72% 13% / 0.06);
-    --shadow-md: 0 4px 16px -2px hsl(158 72% 13% / 0.1), 0 2px 6px -2px hsl(158 72% 13% / 0.08);
-    --shadow-lg: 0 10px 32px -4px hsl(158 72% 13% / 0.14), 0 4px 12px -4px hsl(158 72% 13% / 0.1);
-    --shadow-glow: 0 0 40px hsl(158 72% 13% / 0.15);
+    --shadow-sm: 0 1px 3px 0 hsl(222 47% 11% / 0.05), 0 1px 2px -1px hsl(222 47% 11% / 0.03);
+    --shadow-md: 0 4px 16px -2px hsl(222 47% 11% / 0.08), 0 2px 6px -2px hsl(222 47% 11% / 0.06);
+    --shadow-lg: 0 10px 32px -4px hsl(222 47% 11% / 0.12), 0 4px 12px -4px hsl(222 47% 11% / 0.08);
+    --shadow-glow: 0 0 40px hsl(215 100% 50% / 0.2);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-background: 216 100% 98%;
+    --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
@@ -74,21 +74,24 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.02em;
   }
   .font-body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Outfit', sans-serif;
   }
   .bg-hero {
     background: var(--gradient-hero);

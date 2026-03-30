@@ -15,6 +15,13 @@ export interface GeneratedResults {
     sentimentData: { theme: string; positive: number; negative: number }[];
     trendData: { month: string;[key: string]: string | number }[];
     gapMatrixData: { name: string; x: number; y: number; size: number }[];
+    generatedAt?: string;
+    signalSummary?: {
+        totalComplaints: number;
+        topComplaint: string;
+        topTrend: string;
+        marketGrowthPct: number;
+    };
 }
 
 interface UploadContextType {

@@ -36,7 +36,7 @@ const Index = () => {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 mb-8 animate-fade-in">
               <Sparkles className="w-3.5 h-3.5 text-sage" />
-              <span className="text-white/80 text-sm font-body">Powered by AI · Built for Mosaic Wellness</span>
+              <span className="text-white/80 text-sm font-body">Powered by AI · Built for Innovist</span>
             </div>
 
             <h1 className="font-display text-6xl md:text-7xl font-bold text-white leading-tight mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
@@ -194,7 +194,7 @@ const Index = () => {
         <div className="container mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-display font-bold text-white text-lg tracking-wider">FORGE</span>
-            <span className="text-white/30 text-sm">by Mosaic Wellness</span>
+            <span className="text-white/30 text-sm">by Innovist</span>
           </div>
           <p className="text-white/30 text-sm font-body">AI-Powered Product Intelligence</p>
         </div>

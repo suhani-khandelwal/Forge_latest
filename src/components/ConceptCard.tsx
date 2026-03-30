@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { ProductConcept } from "@/data/mockData";
+import { Link } from "react-router-dom";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip
 } from "recharts";
-import { ChevronDown, ChevronUp, Tag, User, FlaskConical, DollarSign, Quote } from "lucide-react";
+import { ChevronDown, ChevronUp, Tag, User, FlaskConical, DollarSign, Quote, ArrowRight } from "lucide-react";
 
 const ScoreBadge = ({ score }: { score: number }) => {
   const color = score >= 85 ? "bg-forest text-primary-foreground" : score >= 75 ? "bg-sage text-forest" : "bg-muted text-muted-foreground";
@@ -79,11 +79,11 @@ const ConceptCard = ({ concept, expanded, onToggle }: ConceptCardProps) => {
               <span className="text-xs font-body text-muted-foreground w-24 flex-shrink-0">{label}</span>
               <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${invert ? value < 40 ? "bg-forest" : value < 65 ? "bg-sage" : "bg-destructive/70" : "bg-forest"}`}
-                  style={{ width: `${value}%` }}
+                  className={`h-full rounded-full transition-all duration-700 ${invert ? (value || 0) < 40 ? "bg-forest" : (value || 0) < 65 ? "bg-sage" : "bg-destructive/70" : "bg-forest"}`}
+                  style={{ width: `${value || 0}%` }}
                 />
               </div>
-              <span className="text-xs font-body text-muted-foreground w-8 text-right">{value}</span>
+              <span className="text-xs font-body text-muted-foreground w-8 text-right">{value || 0}</span>
             </div>
           ))}
         </div>
@@ -95,9 +95,9 @@ const ConceptCard = ({ concept, expanded, onToggle }: ConceptCardProps) => {
         className="w-full flex items-center justify-center gap-2 py-3 border-t border-border text-sm font-body font-medium text-forest hover:bg-sage-light transition-colors"
       >
         {expanded ? (
-          <>View Less <ChevronUp className="w-4 h-4" /></>
+          <>Close Concept Brief <ChevronUp className="w-4 h-4" /></>
         ) : (
-          <>Full Brief <ChevronDown className="w-4 h-4" /></>
+          <>View Concept Brief <ChevronDown className="w-4 h-4" /></>
         )}
       </button>
 
@@ -122,17 +122,41 @@ const ConceptCard = ({ concept, expanded, onToggle }: ConceptCardProps) => {
             </div>
           </div>
 
-          {/* Ingredients */}
+          {/* Ingredients / Formulation */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <FlaskConical className="w-4 h-4 text-forest" />
-              <h4 className="font-body font-semibold text-forest text-sm">Key Ingredients</h4>
+              <h4 className="font-body font-semibold text-forest text-sm">
+                {concept.formulation?.length ? "Formulation Brief" : "Key Ingredients"}
+              </h4>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {concept.ingredients.map(ing => (
-                <span key={ing} className="px-3 py-1 bg-forest text-primary-foreground text-xs rounded-full font-body">{ing}</span>
-              ))}
-            </div>
+
+            {concept.formulation?.length ? (
+              <div className="space-y-3">
+                {concept.formulation.map((item, i) => (
+                  <div key={i} className="bg-card border border-border rounded-xl p-3">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="px-2 py-0.5 bg-forest text-primary-foreground text-xs rounded-full font-body font-bold">
+                        {item.name}
+                      </span>
+                      <span className="text-xs text-sage font-body font-semibold">{item.concentration}</span>
+                      <span className="text-xs text-muted-foreground font-body border border-border rounded px-1.5 py-0.5 ml-auto">
+                        {item.role}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-body leading-relaxed">{item.rationale}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {concept.ingredients.map(ing => (
+                  <span key={ing} className="px-3 py-1 bg-forest text-primary-foreground text-xs rounded-full font-body">
+                    {ing}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Positioning */}
@@ -164,7 +188,7 @@ const ConceptCard = ({ concept, expanded, onToggle }: ConceptCardProps) => {
             <ResponsiveContainer width="100%" height={220}>
               <RadarChart data={radarData}>
                 <PolarGrid stroke="hsl(var(--border))" />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", fontFamily: "Inter" }} />
+                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", fontFamily: "Outfit" }} />
                 <Radar
                   dataKey="value"
                   stroke="hsl(var(--forest))"
@@ -177,6 +201,17 @@ const ConceptCard = ({ concept, expanded, onToggle }: ConceptCardProps) => {
                 />
               </RadarChart>
             </ResponsiveContainer>
+          </div>
+
+          {/* Navigation to Full Screen Intelligence */}
+          <div className="pt-4 border-t border-border mt-4">
+            <Link 
+              to={`/intelligence/${concept.id}`}
+              state={{ concept }}
+              className="w-full flex items-center justify-center gap-3 py-4 bg-forest text-primary-foreground rounded-xl shadow-md hover:bg-forest/90 transition-all font-body font-bold"
+            >
+              Analyze Competitive Landscape <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
         </div>
       )}
