@@ -51,6 +51,7 @@ if (apiKeys.length === 0) {
 // Try each key in order; move to next key on 429
 async function generateWithKeyRotation(prompt) {
   const models = [
+    "gemini-2.0-flash",
     "gemini-1.5-flash",
     "gemini-1.5-flash-latest",
     "gemini-2.0-flash-exp",
