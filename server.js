@@ -20,6 +20,8 @@ app.get("/api/health", (req, res) => {
     status: "alive", 
     time: new Date().toISOString(),
     keysLoaded: apiKeys.length,
+    urlReceived: req.url,
+    originalUrl: req.originalUrl,
     env: process.env.NODE_ENV
   });
 });
