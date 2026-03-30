@@ -227,15 +227,16 @@ Return ONLY a valid JSON object (no markdown, no preamble):
 
 // ─── Insights Generation Endpoint (3-Stage AI Agent Pipeline) ─────────────────
 app.post("/api/generate-insights", async (req, res) => {
-  const { category, keywords, sources, rawTexts, isUpload } = req.body;
-
-  console.log(`\n[Insights Agent] Starting ${isUpload ? "UPLOAD" : "MINE"} pipeline`);
-  console.log(`  Category: ${category} | Keywords: ${keywords || "None"}`);
-
-  const runTimestamp = new Date().toISOString();
-  const sourcesStr = sources?.join(", ") || "Amazon IN, Nykaa, Reddit, Google Trends";
-
   try {
+    const { category, keywords, sources, rawTexts, isUpload } = req.body;
+    
+    // Safety check for keys
+    if (apiKeys.length === 0) {
+      return res.status(500).json({ 
+        error: "No GEMINI_API_KEY set in Vercel settings.",
+        stage: "Init"
+      });
+    }
     // ── STAGE 1: Signal Harvester ────────────────────────────────────────────
     console.log("  [Stage 1] 🔍 Harvesting live market signals...");
 
@@ -488,9 +489,16 @@ Return ONLY valid JSON (no markdown):
     console.log(`\n  ✅ [Agent Complete] ${finalResult.concepts.length} concepts | Generated at ${runTimestamp}`);
     res.json(finalResult);
 
-  } catch (error) {
-    console.error("  [Agent Error]:", error.message);
-    res.status(500).json({ error: error.message || "AI Agent pipeline failed. Please retry." });
+    console.log(`\n  ✅ [Agent Complete] ${finalResult.concepts.length} concepts | Generated at ${runTimestamp}`);
+    res.json(finalResult);
+
+  } catch (outerError) {
+    console.error("  [Global Agent Error]:", outerError.message);
+    res.status(500).json({ 
+      error: outerError.message, 
+      stack: outerError.stack,
+      stage: "Global"
+    });
   }
 });
 

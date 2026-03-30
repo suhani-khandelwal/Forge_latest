@@ -81,19 +81,29 @@ const MinePage = () => {
         })
       });
 
-      if (!response.ok) throw new Error("Failed to generate dynamic insights");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Status ${response.status}: ${errorData.error || response.statusText}`);
+      }
 
       const results = await response.json();
       setGeneratedResults(results);
     } catch (error: any) {
       console.error("Mining error details:", error);
       
-      const errorMessage = error.message?.includes("504") 
-        ? "AI Architect is taking too long to think (Vercel 10s limit). Try a more specific category."
-        : `AI pipeline failed: ${error.message}`;
+      let errorMessage = `AI pipeline failed: ${error.message}`;
+      
+      if (error.message?.includes("504")) {
+        errorMessage = "Error 504: AI Architect is taking too long (Vercel 10s limit). Try again with 3 concepts.";
+      } else if (error.message?.includes("Status")) {
+        errorMessage = `AI Error: ${error.message}`;
+      }
 
       import("sonner").then(({ toast }) => {
-        toast.error(errorMessage, { duration: 5000 });
+        toast.error(errorMessage, { 
+          duration: 10000,
+          description: "Check the 'Functions' logs in Vercel for details."
+        });
       });
 
       const { generateFromMine } = await import("@/utils/conceptGenerator");
