@@ -14,6 +14,8 @@ const apiKeys = Object.entries(process.env)
   .map(([, v]) => v)
   .filter(Boolean);
 
+let lastAiError = "None";
+
 // ─── Health Check (for Vercel debugging) ──────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({ 
@@ -22,6 +24,7 @@ app.get("/api/health", (req, res) => {
     keysLoaded: apiKeys.length,
     urlReceived: req.url,
     originalUrl: req.originalUrl,
+    lastAiError: lastAiError,
     env: process.env.NODE_ENV
   });
 });
@@ -35,10 +38,10 @@ if (apiKeys.length === 0) {
 // Try each key in order; move to next key on 429
 async function generateWithKeyRotation(prompt) {
   const models = [
-    "gemini-3-flash-preview",
-    "gemini-2.0-flash-lite",
     "gemini-1.5-flash",
-    "gemini-1.5-flash-latest"
+    "gemini-1.5-flash-latest",
+    "gemini-2.0-flash-exp",
+    "gemini-1.5-pro"
   ];
 
   for (let i = 0; i < apiKeys.length; i++) {
@@ -61,17 +64,18 @@ async function generateWithKeyRotation(prompt) {
         const isNotFound = err.message?.includes("404") || err.message?.includes("not found");
 
         console.error(`  [Key ${i + 1}] ❌ Error with ${modelName}: ${err.message}`);
+        lastAiError = `[${modelName}] ${err.message}`;
 
         if (isQuota || isNotFound) {
-          console.warn(`  [Key ${i + 1}] ⚠️  ${isQuota ? "Quota hit" : "Model not found"} for ${modelName} — trying next model...`);
-          continue; // Try next model for same key
+          continue; // Move to next model/key
         }
-        // If not quota/404 but some other error, break model loop and try next key
-        break;
+        // If it's a 400 (Bad Request/Invalid Key) or 403 (Forbidden), we continue to next key anyway
+        continue;
       }
     }
   }
-  throw new Error("All keys and models exhausted or unavailable. Please check the server logs for specific API errors.");
+
+  throw new Error(`All ${apiKeys.length} keys and models exhausted. Last Error: ${lastAiError}`);
 }
 
 // ─── Safety Fallback: Local Intelligence Generation ────────────────────────────
